@@ -47,6 +47,8 @@ import com.bumptech.glide.Glide;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.firebase.ui.database.SnapshotParser;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.google.android.gms.appinvite.AppInviteInvitation;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.common.ConnectionResult;
@@ -55,6 +57,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -71,6 +74,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+
 
 public class MainActivity extends AppCompatActivity
         implements GoogleApiClient.OnConnectionFailedListener {
@@ -119,6 +123,8 @@ public class MainActivity extends AppCompatActivity
 
     // Firebase instance variables
     private FirebaseRemoteConfig mFirebaseRemoteConfig;
+    private FirebaseAnalytics mFirebaseAnalytics;
+    private AdView mAdView;
 
 
     @Override
@@ -129,6 +135,8 @@ public class MainActivity extends AppCompatActivity
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         // Set default username is anonymous.
         mUsername = ANONYMOUS;
+
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
@@ -179,6 +187,9 @@ public class MainActivity extends AppCompatActivity
         mMessageRecyclerView.setLayoutManager(mLinearLayoutManager);
 
 //        mProgressBar.setVisibility(ProgressBar.INVISIBLE);
+        mAdView = (AdView)findViewById(R.id.addView);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);
 
         mMessageEditText = findViewById(R.id.messageEditText);
         mMessageEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(mSharedPreferences
@@ -401,6 +412,22 @@ public class MainActivity extends AppCompatActivity
                             });
                 }
             }
+        } else if (requestCode == REQUEST_INVITE){
+            if (resultCode == RESULT_OK){
+                // Check how many invitations were sent and log.
+                Bundle payload = new Bundle();
+                payload.putString(FirebaseAnalytics.Param.VALUE,"sent");
+                mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SHARE,payload);
+
+                String[] ids = AppInviteInvitation.getInvitationIds(resultCode,data);
+                Log.d(TAG,"Invitation sent: "+ids.length);
+            } else {
+                Bundle payload = new Bundle();
+                payload.putString(FirebaseAnalytics.Param.VALUE,"not sent");
+                mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SHARE,payload);
+                // Sending failed or it was canceled, show failure message to the user
+                Log.d(TAG,"Failed to send invitation");
+            }
         }
     }
 
@@ -440,12 +467,18 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onPause() {
         mFirebaseAdapter.stopListening();
+        if (mAdView != null){
+            mAdView.pause();
+        }
         super.onPause();
     }
 
     @Override
     public void onResume() {
         mFirebaseAdapter.startListening();
+        if (mAdView != null){
+            mAdView.destroy();
+        }
         super.onResume();
     }
 
@@ -464,6 +497,12 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
+            case R.id.crash_menu:
+                Log.w("Crashlytics","Crash Button clicked");
+                causeCrash();
+            case R.id.invite_menu:
+                sendInvitation();
+                return true;
             case R.id.fresh_config_menu:
                 fetchConfig();
                 return true;
@@ -477,6 +516,10 @@ public class MainActivity extends AppCompatActivity
                 default:
                     return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void causeCrash(){
+        throw new NullPointerException("Fake null pointer exception");
     }
 
     @Override
