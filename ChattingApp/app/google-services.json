@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "868033333304",
+    "firebase_url": "https://chattingapp-7edbc.firebaseio.com",
+    "project_id": "chattingapp-7edbc",
+    "storage_bucket": "chattingapp-7edbc.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:868033333304:android:2e1fc60120ed0882",
+        "android_client_info": {
+          "package_name": "com.oleg.chattingapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "868033333304-raqei5st0sn898r6rk7q04ck8fnnt13i.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.oleg.chattingapp",
+            "certificate_hash": "ec1fb6422be5a1e09e9b9d7621c7be0c661c11a5"
+          }
+        },
+        {
+          "client_id": "868033333304-4419ul4ickcf2oi8lokinvi439giqj8v.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBmJ-_QsknXts0J0uVzfjSVzfM20cdogZM"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "868033333304-4419ul4ickcf2oi8lokinvi439giqj8v.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
